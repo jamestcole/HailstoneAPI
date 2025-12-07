@@ -1,0 +1,25 @@
+# Local Terraform working directory
+.terraform/
+.terraform.lock.hcl
+
+# Terraform state files
+terraform.tfstate
+terraform.tfstate.*
+crash.log
+
+# Sensitive variable files
+*.tfvars
+*.tfvars.json
+
+# Lambda build artifacts
+lambda.zip
+
+# Python bytecode cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Editor / OS artifacts
+.DS_Store
+Thumbs.db
+*.swp

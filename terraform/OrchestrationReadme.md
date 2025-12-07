@@ -8,5 +8,3 @@
 ├── lambda.tf              # Lambda + IAM role/policies + code packaging
 ├── dynamodb.tf            # Table for caching results
 ├── apigateway.tf          # API Gateway integration + routes
-│
-└── provider.tf            # AWS provider + region

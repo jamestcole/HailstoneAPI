@@ -4,7 +4,7 @@
 
 resource "aws_dynamodb_table" "hailstone_results" {
   name         = "${var.project_prefix}-results"
-  billing_mode = "PAY_PER_REQUEST" # Cost-effective, auto-scales
+  billing_mode = "PAY_PER_REQUEST"
   hash_key     = "start"
 
   attribute {
@@ -17,10 +17,3 @@ resource "aws_dynamodb_table" "hailstone_results" {
   }
 }
 
-##############################################
-# Outputs from DynamoDB Module
-##############################################
-
-output "table_name" {
-  value = aws_dynamodb_table.hailstone_results.name
-}

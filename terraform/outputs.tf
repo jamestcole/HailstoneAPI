@@ -1,28 +1,18 @@
 ##############################################
-# Outputs for the full Hailstone API stack
+# Outputs for the Hailstone API stack
 ##############################################
 
-output "sqs_queue_url" {
-  description = "URL of the main SQS queue"
-  value       = module.sqs.queue_url
-}
-
-output "sqs_queue_arn" {
-  description = "ARN of the main SQS queue"
-  value       = module.sqs.queue_arn
+output "api_invoke_url" {
+  description = "Invoke URL for Hailstone API endpoint"
+  value       = "${aws_apigatewayv2_api.hailstone_api.api_endpoint}/prod/hailstone"
 }
 
 output "lambda_worker_arn" {
   description = "Lambda worker ARN"
-  value       = module.lambda.lambda_arn
+  value       = aws_lambda_function.hailstone_worker.arn
 }
 
 output "dynamodb_table_name" {
   description = "DynamoDB table name"
-  value       = module.dynamodb.table_name
-}
-
-output "api_invoke_url" {
-  description = "Invoke URL for hailstone API endpoint"
-  value       = module.api_gateway.api_endpoint
+  value       = aws_dynamodb_table.hailstone_results.name
 }

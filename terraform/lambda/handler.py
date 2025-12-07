@@ -5,29 +5,32 @@ from decimal import Decimal
 from logic import hailstone
 
 dynamodb = boto3.resource("dynamodb")
-table = dynamodb.Table(os.environ.get("TABLE_NAME") or "hailstone-api-results")
+table_name = os.environ.get("TABLE_NAME", "hailstone-api-results")
+table = dynamodb.Table(table_name)
 
 def handler(event, context):
-
-    # Parse and validate input
+    # HTTP API v2: body is a JSON string
     try:
-        body = json.loads(event.get("body", "{}"))
+        body_str = event.get("body", "{}")
+        body = json.loads(body_str)
         n = int(body.get("start"))
         if n < 1:
             raise ValueError("start must be a positive integer")
     except Exception as e:
         return {
             "statusCode": 400,
+            "headers": {"Content-Type": "application/json"},
             "body": json.dumps({"error": str(e)})
         }
 
-    # For large values, check DynamoDB first
+    # Optional cache: only for large numbers
     if n > 1000:
-        response = table.get_item(Key={"start": n})
-        if "Item" in response:
-            item = response["Item"]
+        resp = table.get_item(Key={"start": n})
+        if "Item" in resp:
+            item = resp["Item"]
             return {
                 "statusCode": 200,
+                "headers": {"Content-Type": "application/json"},
                 "body": json.dumps({
                     "start": int(item["start"]),
                     "steps": int(item["steps"]),
@@ -37,21 +40,24 @@ def handler(event, context):
                 })
             }
 
-    # Compute result
+    # Compute Hailstone
     steps, sequence, finished = hailstone(n)
 
-    # Store result for large numbers
+    # Store result only for large numbers
     if n > 1000:
-        table.put_item(Item={
-            "start": n,
-            "steps": steps,
-            "finished": finished,
-            "sequence": [Decimal(x) for x in sequence]
-        })
+        table.put_item(
+            Item={
+                "start": n,
+                "steps": steps,
+                "finished": finished,
+                "sequence": [Decimal(x) for x in sequence]
+            }
+        )
 
-    # Response
+    # Return synchronous response
     return {
         "statusCode": 200,
+        "headers": {"Content-Type": "application/json"},
         "body": json.dumps({
             "start": n,
             "steps": steps,
@@ -60,3 +66,4 @@ def handler(event, context):
             "source": "computed"
         })
     }
+
